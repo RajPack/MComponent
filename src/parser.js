@@ -48,10 +48,14 @@ function parseHTML(template, component) {
 }
 
 function parseNodes(template, dataRef){
-    for(var i = 0 ; i< template.childElementCount; i++){
-        template.children[i] = parseIndividualNode(template.children[i], dataRef);
+    var nodes = template.childNodes;
+    for(var i = 0 ; i< nodes.length; i++){
+        if(nodes[i].hasChildNodes()){
+            nodes[i] = parseNodes(nodes[i], dataRef);
+        } else {
+             nodes[i] = parseIndividualNode(nodes[i], dataRef);
+        }
     }
-
     return template;
 }
 
@@ -99,11 +103,18 @@ function if_MCExpression(content){
 
 /* parser test code 
 
-var sampletemplate = '<div class="container"><span>Your Name is: {{name}} and your age is {{age}}</span></div>';
-var data = {name: 'john', age: 23};
+var sampletemplate = `<div class="container"><span>Your Name is: {{name }} {{lastName}} and your age is {{age}}</span>
+                        <div>
+                            <span>{{name}}'s Department: 
+                                <b>{{dept}}</b> 
+                             </span>
+                        </div>
+                      </div>`;
+var data = {name: 'Steve', lastName: "Smith", age: 32,dept:"sales"};
 var viewHTML = parseHTML(sampletemplate, data);
 
 document.body.innerHTML = "";
 document.body.appendChild(viewHTML);
+
 
 */
