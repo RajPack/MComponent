@@ -1,7 +1,6 @@
 var Parser = {
-    parseHTML: function (template, data) {
-        //recursion code here
-    }
+    parseHTML: parseHTML,
+    createVDOM: createVDOM
 }
 
 
@@ -19,4 +18,16 @@ function loop (loopVal, ref) {
 
 function evaluateData(dataExpr, dataRef){
   
+}
+
+function createVDOM (template){
+    var parser, elem, parsedTemplate;
+    parser = new DOMParser();
+    parsedTemplate = parser.parseFromString(template, 'text/html');
+    elem = parsedTemplate.body.firstChild;
+    return elem;
+}
+
+function parseHTML() {
+    
 }
