@@ -20,6 +20,7 @@ function loop(loopVal, ref) {
 function evaluateExpression(dataExpr, dataRef) {
     var fn, strippedExp, evaluatedValue;
     strippedExp = stripInterpolation(dataExpr);
+    strippedExp = bindIdentifiers(strippedExp, dataRef);
     strippedExp = "return (" + strippedExp + ");";
     fn = new Function(strippedExp);
     evaluatedValue = fn.call(dataRef);
@@ -28,7 +29,7 @@ function evaluateExpression(dataExpr, dataRef) {
 }
 
 function stripInterpolation(exp) {
-    exp = exp.replace(/{{/g, "this.");
+    exp = exp.replace(/{{/g, "");
     exp = exp.replace(/}}/g, "");
     return exp;
 }
@@ -39,6 +40,41 @@ function createVDOM(template) {
     parsedTemplate = parser.parseFromString(template, "text/html");
     elem = parsedTemplate.body.firstChild;
     return elem;
+}
+
+function bindIdentifiers(expression, obj) {
+    var lex = new ExpressionLexer(expression),
+        expTokens,
+        intialExpressionLength = expression.length;
+    (index = 0), (offset = 0), (updatedExpression = expression);
+    expTokens = lex.getAllTokens();
+    while (index < expTokens.length) {
+        var token = expTokens[index];
+        updatedExpression =
+            token.type === "IDENTIFIER"
+                ? shouldBindIdenfier(token.value, obj)
+                    ? bindObjToIdentifer(updatedExpression, token, offset)
+                    : updatedExpression
+                : updatedExpression;
+        index++;
+        offset = updatedExpression.length - intialExpressionLength;
+    }
+    return updatedExpression;
+}
+
+function shouldBindIdenfier(identifier, data) {
+    return data[identifier] ? true : window[identifier] ? false : true;
+}
+
+function bindObjToIdentifer(expression, token, offset) {
+    var startIndex = token.start + offset,
+        endIndex = token.end + offset;
+    var updatedExpression =
+        expression.substring(0, startIndex) +
+        "this." +
+        token.value +
+        expression.substring(endIndex + 1, expression.length);
+    return updatedExpression;
 }
 
 function parseHTML(template, component) {
@@ -114,7 +150,7 @@ var ExpressionLexer = (() => {
             this.tokens = [];
         }
 
-        getListOfToken() {
+        getAllTokens() {
             while (this.pos < this.bufLen) {
                 var ch = this.buf.charAt(this.pos);
                 if (
@@ -333,7 +369,7 @@ var ExpressionLexer = (() => {
     return Lexer;
 })();
 
-/* parser test code 
+/* sample test code 
 
 var sampletemplate = `<div class="container"><span>Your Name is: {{name }} {{lastName}} and your age is {{age}}</span>
                         <div>
@@ -341,8 +377,11 @@ var sampletemplate = `<div class="container"><span>Your Name is: {{name }} {{las
                                 <b>{{dept}}</b> 
                              </span>
                         </div>
+                        <div>age > 30 : {{age > 30}}</div>
+                        <div> Last name is Jones ? -- {{lastName === 'Jones'}}</div>
+                        <div> Your alias is different from your first name ? -- {{alias !== name || alias === lastName }}</div>
                       </div>`;
-var data = {name: 'Steve', lastName: "Smith", age: 32,dept:"sales"};
+var data = {name: 'Steve', lastName: "Smith", age: 32,dept:"sales", alias: "Steve"};
 var viewHTML = parseHTML(sampletemplate, data);
 
 document.body.innerHTML = "";
