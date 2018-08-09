@@ -105,20 +105,21 @@ function if_MCExpression(content) {
 
 var expressionLexer = (() => {
     class Lexer {
-        constructor(buffer) {
+        constructor(buffer, offset) {
             this.setTokenTypes();
             this.buf = buffer;
             this.bufLen = this.buf.length;
             this.pos = 0;
+            this.offset = offset || 0;
             this.tokens = [];
         }
 
         getListOfToken() {
-            while (this.pos <= this.bufLen) {
+            while (this.pos < this.bufLen) {
                 var ch = this.buf.charAt(this.pos);
                 if (
                     this._isnonToken(ch) ||
-                    this.checkIfExpression(ch) ||
+                    (this._isopenExpression(ch) && this.checkIfExpression(ch) ) ||
                     (this._isalpha(ch) && this.checkIfIdentifier()) ||
                     (this._isquote(ch) && this.checkIfStringLiteral()) ||
                     (this._isdigit(ch) && this.checkIfNumberLiteral()) ||
@@ -138,8 +139,8 @@ var expressionLexer = (() => {
         getToken(type, start, end, value) {
             return {
                 type: type,
-                start: start,
-                end: end,
+                start: start + this.offset,
+                end: end + this.offset,
                 value: value
             };
         }
@@ -153,12 +154,17 @@ var expressionLexer = (() => {
                 if (tokenRef[i] === ch) {
                     closedExp = false;
                     endpos = this.pos + 1;
-                    while (endpos <= this.bufLen) {
+                    while (endpos < this.bufLen) {
                         if (closetokenRef[i] === this.buf.charAt(endpos)) {
                             closedExp = true;
+                            var subexprLexer = new Lexer(this.buf.substring(this.pos + 1, endpos), this.pos+1);
+                            var subTokens = subexprLexer.getListOfToken();
+                            this.tokens =this.tokens.concat(subTokens);
                             this.pos = endpos;
-                            var subexprLexer = new Lexer(this.buf.substring(this.pos + 1, endpos));
-                            this.tokens.push(subexprLexer.getListOfToken());
+                            endpos++;
+                        }
+                        else{
+                            endpos++;
                         }
                     }
                     if (!closedExp) {
@@ -188,14 +194,27 @@ var expressionLexer = (() => {
                 this.buf.substring(this.pos, endpos)
             );
             this.pos = endpos - 1;
+            this.tokens.push(token);
             return token;
         }
 
-        checkIfOperator() {}
+        checkIfOperator(ch) {
+            if(this.checkIfDoubleOperator(ch)){
+                this.pos++;
+                return true;
+            } else if( this.checkIfSingleOperator(ch)){
+                this.pos++;
+                return true;
+            }else{
+                return false;
+            }
+        }
 
-        checkIfSingleOperator() {}
+        checkIfSingleOperator(ch) {}
 
-        checkIfDoubleOperatore() {}
+        checkIfDoubleOperator(ch) {
+            
+        }
 
         checkIfNumberLiteral() {
             var token,
@@ -209,7 +228,8 @@ var expressionLexer = (() => {
                 endpos - 1,
                 this.buf.substring(this.pos, endpos)
             );
-            this.pos = endpos - 1;
+            this.tokens.push(token);
+            this.pos = endpos -1;
             return token;
         }
 
@@ -217,16 +237,17 @@ var expressionLexer = (() => {
             var token,
                 endpos = this.pos + 1,
                 quoteChar = this.buf.charAt(this.pos);
-            while (endpos < this.bufLen && quoteChar === this.buf.charAt(endpos)) {
+            while (endpos < this.bufLen && quoteChar !== this.buf.charAt(endpos)) {
                 endpos++;
             }
             token = this.getToken(
                 "String Literal",
                 this.pos,
                 endpos - 1,
-                this.buf.substring(this.pos, endpos)
+                this.buf.substring(this.pos, endpos+1)
             );
-            this.pos = endpos - 1;
+            this.tokens.push(token);
+            this.pos = endpos;
             return token;
         }
 
@@ -234,6 +255,17 @@ var expressionLexer = (() => {
             return (ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z") || ch === "_" || ch === "$";
         }
 
+        _isopenExpression(ch){
+            var match = this.tokenTypes.ExpressionOpen;
+            var matched = false;
+            for(var i = 0 ; i< match.length; i++){
+                if(ch === match[i]){
+                    matched = true;
+                    break;
+                }
+            }
+            return matched;
+        }
         _isdigit(ch) {
             return ch >= "0" && ch <= "9";
         }
@@ -261,8 +293,8 @@ var expressionLexer = (() => {
             this.tokenTypes = {
                 ExpressionOpen: ["("],
                 ExpressionClose: [")"],
-                SingleOperator: ["+", "-", "/", "%", "!", "&", "|", "*", "?", ":"],
-                doubleOperator: ["&&", "||", "++", "--"]
+                SingleOperator: ["+", "-", "/", "%", "!", "&", "|", "*", "?", ":", "<", ">", "="],
+                doubleOperator: ["&&", "||", "++", "--", "==(?==)", "==","<=",">=", "!=", "!=(?==)"]
             };
         }
 
