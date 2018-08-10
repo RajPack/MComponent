@@ -3,19 +3,19 @@ var Parser = {
     createVDOM: createVDOM
 };
 
-function loop(loopVal, ref) {
-    var arr = loopVal.split(" ");
-    var dataObj = Object.create(ref);
-    var ObjName = arr[0];
-    var ObjRef = arr[2];
+// function loop(loopVal, ref) {
+//     var arr = loopVal.split(" ");
+//     var dataObj = Object.create(ref);
+//     var ObjName = arr[0];
+//     var ObjRef = arr[2];
 
-    ref[ObjRef].forEach(
-        function(item, index) {
-            this[ObjName] = item;
-            console.log(this[ObjName].street);
-        }.bind(dataObj)
-    );
-}
+//     ref[ObjRef].forEach(
+//         function(item, index) {
+//             this[ObjName] = item;
+//             console.log(this[ObjName].street);
+//         }.bind(dataObj)
+//     );
+// }
 
 function evaluateExpression(dataExpr, dataRef) {
     var fn, strippedExp, evaluatedValue;
