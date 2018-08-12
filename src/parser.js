@@ -202,7 +202,7 @@ var ExpressionLexer = (() => {
                                 this.buf.substring(this.pos + 1, endpos),
                                 this.pos + 1 + this.offset
                             );
-                            var subTokens = subexprLexer.getListOfToken();
+                            var subTokens = subexprLexer.getAllTokens();
                             this.tokens = this.tokens.concat(subTokens);
                             this.pos = endpos;
                             endpos++;
@@ -379,7 +379,7 @@ var sampletemplate = `<div class="container"><span>Your Name is: {{name }} {{las
                         </div>
                         <div>age > 30 : {{age > 30}}</div>
                         <div> Last name is Jones ? -- {{lastName === 'Jones'}}</div>
-                        <div> Your alias is different from your first name ? -- {{alias !== name || alias === lastName }}</div>
+                        <div> Your alias is different from your first name ? -- {{alias !== name || (alias === lastName) }}</div>
                       </div>`;
 var data = {name: 'Steve', lastName: "Smith", age: 32,dept:"sales", alias: "Steve"};
 var viewHTML = parseHTML(sampletemplate, data);
