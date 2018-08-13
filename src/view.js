@@ -1,4 +1,5 @@
-class View {
+import {Parser } from './parser';
+export class View {
     bindings;
     template;
     dataRef;
@@ -10,7 +11,11 @@ class View {
         
     }
 
+    init(){
+        
+    }
+
     parse(){
-        Parser.parseHTML(this.template, this.dataRef)
+        this.DOMRef = Parser.parseHTML(this.template, this.dataRef)
     }
 }

@@ -1,4 +1,4 @@
-var Parser = {
+export var Parser = {
     parseHTML: parseHTML,
     createVDOM: createVDOM
 };
@@ -45,8 +45,7 @@ function createVDOM(template) {
 function bindIdentifiers(expression, obj) {
     var lex = new ExpressionLexer(expression),
         expTokens,
-        intialExpressionLength = expression.length;
-    (index = 0), (offset = 0), (updatedExpression = expression);
+        intialExpressionLength = expression.length,index = 0, offset = 0, updatedExpression = expression;
     expTokens = lex.getAllTokens();
     while (index < expTokens.length) {
         var token = expTokens[index];
@@ -77,9 +76,9 @@ function bindObjToIdentifer(expression, token, offset) {
     return updatedExpression;
 }
 
-function parseHTML(template, component) {
-    var vdom, interpolatedVdom;
-    vdom = createVDOM(template);
+function parseHTML(template, component, vdom) {
+    var interpolatedVdom;
+    vdom = vdom || createVDOM(template);
     interpolatedVdom = parseNodes(vdom, component);
     return interpolatedVdom;
 }

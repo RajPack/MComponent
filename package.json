@@ -1,0 +1,29 @@
+{
+  "name": "mcomponent",
+  "version": "1.0.0",
+  "description": "Mini Component for Javascript developers (essential features of component based development)",
+  "main": "component.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/RajPack/MComponent.git"
+  },
+  "author": "Raj",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RajPack/MComponent/issues"
+  },
+  "homepage": "https://github.com/RajPack/MComponent#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "grunt": "^1.0.3",
+    "grunt-babel": "^7.0.0",
+    "grunt-es6-module-transpiler": "^0.6.0",
+    "load-grunt-tasks": "^4.0.0"
+  },
+  "dependencies": {}
+}
