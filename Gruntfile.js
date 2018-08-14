@@ -1,33 +1,28 @@
 module.exports = function(grunt) {
   require("load-grunt-tasks")(grunt);
+  var babel = require("rollup-plugin-babel");
   grunt.initConfig({
     pkg: grunt.file.readJSON("package.json"),
-    babel: {
+    rollup: {
       options: {
-        sourceMap: true
-      },
-      dist: {
-        files: {
-          "temp/mcomponent.js": "src/component.js"
+        plugins: [
+          babel({
+            exclude: "./node_modules/**"
+          })
+        ],
+        output: {
+          format: "iife"
         }
+      },
+      files: {
+        dest: "dist/mcomponent.js",
+        src: "src/component.js"
       }
     },
-    transpile: {
-      main: {
-        type: "amd",
-        imports: {},
-        files: [
-          {
-            src: ["./temp/**/*.js"],
-            dest: "./dist/",
-            ext: ".amd.js"
-          }
-        ]
-      }
-    }
+    clean: ["./dist/"]
   });
   // Load the plugin
-  grunt.loadNpmTasks("grunt-babel");
-  grunt.loadNpmTasks("grunt-es6-module-transpiler");
-  grunt.registerTask("default", ["babel", "transpile"]);
+  // grunt.loadNpmTasks("grunt-babel");
+  grunt.loadNpmTasks("grunt-rollup");
+  grunt.registerTask("default", ["clean", "rollup"]);
 };

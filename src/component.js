@@ -1,4 +1,4 @@
-import { View } from "./src/view";
+import { View } from "./view";
 
 export class MComponent {
   constructor() {
