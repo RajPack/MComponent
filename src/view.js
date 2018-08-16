@@ -20,8 +20,11 @@ export class View {
     parse() {
         this.DOMRef = Parser.parseHTML(this.template, this.dataRef);
     }
-    initialRender(){
-        this.originalDOMRef = viewUtils.replaceDOM(this.originalDOMRef, this.DOMRef);
+    initialRender() {
+        this.originalDOMRef = viewUtils.replaceDOM(
+            this.originalDOMRef,
+            this.DOMRef
+        );
     }
 }
 
@@ -32,6 +35,6 @@ var viewUtils = (function() {
     };
 
     return {
-        replaceDOM = replaceDOMRef
+        replaceDOM: replaceDOMRef
     };
 })();

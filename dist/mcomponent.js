@@ -392,60 +392,82 @@ document.body.appendChild(viewHTML);
 */
 
 var View = function () {
-    function View(template, dataref) {
+    function View(template, dataref, originalDOMRef) {
         classCallCheck(this, View);
 
         this.template = template;
         this.dataRef = dataref;
+        this.originalDOMRef = originalDOMRef;
     }
 
     createClass(View, [{
-        key: 'init',
-        value: function init() {}
+        key: "init",
+        value: function init() {
+            this.parse();
+            this.initialRender();
+        }
     }, {
-        key: 'parse',
+        key: "parse",
         value: function parse() {
             this.DOMRef = Parser.parseHTML(this.template, this.dataRef);
+        }
+    }, {
+        key: "initialRender",
+        value: function initialRender() {
+            this.originalDOMRef = viewUtils.replaceDOM(this.originalDOMRef, this.DOMRef);
         }
     }]);
     return View;
 }();
 
+var viewUtils = function () {
+    replaceDOMRef = function replaceDOMRef(oldRef, newRef) {
+        oldRef.parentNode.replaceChild(newRef, oldRef);
+        return newRef;
+    };
+
+    return {
+        replaceDOM: replaceDOMRef
+    };
+}();
+
 var MComponent = function () {
-  var MComponent = function () {
-    function MComponent() {
-      classCallCheck(this, MComponent);
+    var MComponent = function () {
+        function MComponent() {
+            classCallCheck(this, MComponent);
 
-      this._viewRef = new View(this.template, this);
+            this._viewRef = new View(this.template, this, componentDOMRef);
+        }
+
+        createClass(MComponent, [{
+            key: "initView",
+            value: function initView() {
+                this._viewRef.parse();
+            }
+        }, {
+            key: "init",
+            value: function init() {
+                this._viewRef.init();
+                this.mcOnInit();
+            }
+        }, {
+            key: "mcOnInit",
+            value: function mcOnInit() {}
+        }]);
+        return MComponent;
+    }();
+
+    MComponent.bootstrap = function (selector, rootComponent) {
+        var elem;
+        elem = document.querySelector(selector) || _throwError("Error at bootstrap, selector : " + selector + " doesn't exist in DOM");
+        rootComponent = rootComponent || _throwError("rootComponent not found");
+    };
+
+    function _throwError(msg) {
+        throw new Error(msg);
     }
 
-    createClass(MComponent, [{
-      key: "initView",
-      value: function initView() {
-        this._viewRef.parse();
-      }
-    }, {
-      key: "init",
-      value: function init() {
-        this._viewRef.init();
-        this.mcOnInit();
-      }
-    }, {
-      key: "mcOnInit",
-      value: function mcOnInit() {}
-    }]);
     return MComponent;
-  }();
-
-  MComponent.bootstrap = function (selector, rootComponent) {
-    var elem;
-    elem = document.querySelector(selector);
-    if (!elem) {
-      throw new Error("Error at bootstrap, selector : " + selector + " doesn't exist in DOM");
-    }
-  };
-
-  return MComponent;
 }();
 
 export { MComponent };
