@@ -1,4 +1,5 @@
 import { Parser } from "./parser";
+import { Loader } from "./MCLoader";
 export class View {
     bindings;
     template;
@@ -10,6 +11,7 @@ export class View {
         this.template = template;
         this.dataRef = dataref;
         this.originalDOMRef = originalDOMRef;
+        this.changeDetectionRef = new Loader();
     }
 
     init() {
